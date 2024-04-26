@@ -20,34 +20,14 @@ func (fn StringRuleFunc[T]) Validate(s T) error {
 	return fn(s)
 }
 
-type IntRule[T constraints.Int] interface {
-	Validate(i T) error
+type NumberRule[T constraints.Number] interface {
+	Validate(n T) error
 }
 
-type IntRuleFunc[T constraints.Int] func(i T) error
+type NumberRuleFunc[T constraints.Number] func(n T) error
 
-func (fn IntRuleFunc[T]) Validate(i T) error {
-	return fn(i)
-}
-
-type UintRule[T constraints.Uint] interface {
-	Validate(u T) error
-}
-
-type UintRuleFunc[T constraints.Uint] func(u T) error
-
-func (fn UintRuleFunc[T]) Validate(u T) error {
-	return fn(u)
-}
-
-type FloatRule[T constraints.Float] interface {
-	Validate(f T) error
-}
-
-type FloatRuleFunc[T constraints.Float] func(f T) error
-
-func (fn FloatRuleFunc[T]) Validate(f T) error {
-	return fn(f)
+func (fn NumberRuleFunc[T]) Validate(n T) error {
+	return fn(n)
 }
 
 type TimeRule interface {
@@ -97,5 +77,15 @@ type AnyRule[T any] interface {
 type AnyRuleFunc[T any] func(v T) error
 
 func (fn AnyRuleFunc[T]) Validate(v T) error {
+	return fn(v)
+}
+
+type ComparableRule[T comparable] interface {
+	Validate(v T) error
+}
+
+type ComparableRuleFunc[T comparable] func(v T) error
+
+func (fn ComparableRuleFunc[T]) Validate(v T) error {
 	return fn(v)
 }

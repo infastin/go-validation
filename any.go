@@ -34,7 +34,7 @@ func AnyV[T any]() AnyValidator[T] {
 
 func (av AnyValidator[T]) Required(condition bool, isDefault func(v T) bool) AnyValidator[T] {
 	if !av.skip {
-		av.rules = append(av.rules, RequiredAny[T](condition, isDefault))
+		av.rules = append(av.rules, RequiredAny(condition, isDefault))
 	}
 	return av
 }
@@ -46,7 +46,7 @@ func (av AnyValidator[T]) Skip(condition bool) AnyValidator[T] {
 	return av
 }
 
-func (av AnyValidator[T]) When(condition bool, ok AnyRule[T], otherwise AnyRule[T]) AnyValidator[T] {
+func (av AnyValidator[T]) When(condition bool, ok, otherwise AnyRule[T]) AnyValidator[T] {
 	if !av.skip {
 		if condition {
 			av.rules = append(av.rules, ok)

@@ -116,7 +116,7 @@ func (sv StringValidator[T]) BetweenEqual(a, b T) StringValidator[T] {
 	return sv
 }
 
-func (sv StringValidator[T]) When(condition bool, ok StringRule[T], otherwise StringRule[T]) StringValidator[T] {
+func (sv StringValidator[T]) When(condition bool, ok, otherwise StringRule[T]) StringValidator[T] {
 	if !sv.skip {
 		if condition {
 			sv.rules = append(sv.rules, ok)

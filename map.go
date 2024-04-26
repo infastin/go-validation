@@ -81,7 +81,7 @@ func (mv MapValidator[T]) Length(min, max int) MapValidator[T] {
 	return mv
 }
 
-func (mv MapValidator[T]) When(condition bool, ok MapRule[T], otherwise MapRule[T]) MapValidator[T] {
+func (mv MapValidator[T]) When(condition bool, ok, otherwise MapRule[T]) MapValidator[T] {
 	if !mv.skip {
 		if condition {
 			mv.rules = append(mv.rules, ok)

@@ -18,30 +18,9 @@ func Test_ruleError_Error(t *testing.T) {
 		fields fields
 		want   string
 	}{
-		{
-			name: "ab",
-			fields: fields{
-				code:    "a",
-				message: "b",
-			},
-			want: "b",
-		},
-		{
-			name: "hello",
-			fields: fields{
-				code:    "hello",
-				message: "world",
-			},
-			want: "world",
-		},
-		{
-			name: "foobar",
-			fields: fields{
-				code:    "foo",
-				message: "bar",
-			},
-			want: "bar",
-		},
+		{"ab", fields{"a", "b"}, "b"},
+		{"hello", fields{"hello", "world"}, "world"},
+		{"foobar", fields{"foo", "bar"}, "bar"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -63,30 +42,9 @@ func Test_ruleError_Code(t *testing.T) {
 		fields fields
 		want   string
 	}{
-		{
-			name: "ab",
-			fields: fields{
-				code:    "a",
-				message: "b",
-			},
-			want: "a",
-		},
-		{
-			name: "hello",
-			fields: fields{
-				code:    "hello",
-				message: "world",
-			},
-			want: "hello",
-		},
-		{
-			name: "foobar",
-			fields: fields{
-				code:    "foo",
-				message: "bar",
-			},
-			want: "foo",
-		},
+		{"ab", fields{"a", "b"}, "a"},
+		{"hello", fields{"hello", "world"}, "hello"},
+		{"foobar", fields{"foo", "bar"}, "foo"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -108,30 +66,9 @@ func Test_ruleError_Message(t *testing.T) {
 		fields fields
 		want   string
 	}{
-		{
-			name: "ab",
-			fields: fields{
-				code:    "a",
-				message: "b",
-			},
-			want: "b",
-		},
-		{
-			name: "hello",
-			fields: fields{
-				code:    "hello",
-				message: "world",
-			},
-			want: "world",
-		},
-		{
-			name: "foobar",
-			fields: fields{
-				code:    "foo",
-				message: "bar",
-			},
-			want: "bar",
-		},
+		{"ab", fields{"a", "b"}, "b"},
+		{"hello", fields{"hello", "world"}, "world"},
+		{"foobar", fields{"foo", "bar"}, "bar"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -153,30 +90,9 @@ func Test_valueError_Error(t *testing.T) {
 		fields fields
 		want   string
 	}{
-		{
-			name: "ab",
-			fields: fields{
-				name:   "a",
-				nested: errors.New("b"),
-			},
-			want: "a: b",
-		},
-		{
-			name: "hello",
-			fields: fields{
-				name:   "hello",
-				nested: errors.New("world"),
-			},
-			want: "hello: world",
-		},
-		{
-			name: "foobar",
-			fields: fields{
-				name:   "foo",
-				nested: errors.New("bar"),
-			},
-			want: "foo: bar",
-		},
+		{"ab", fields{"a", errors.New("b")}, "a: b"},
+		{"hello", fields{"hello", errors.New("world")}, "hello: world"},
+		{"foobar", fields{"foo", errors.New("bar")}, "foo: bar"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -198,30 +114,9 @@ func Test_valueError_Name(t *testing.T) {
 		fields fields
 		want   string
 	}{
-		{
-			name: "ab",
-			fields: fields{
-				name:   "a",
-				nested: errors.New("b"),
-			},
-			want: "a",
-		},
-		{
-			name: "hello",
-			fields: fields{
-				name:   "hello",
-				nested: errors.New("world"),
-			},
-			want: "hello",
-		},
-		{
-			name: "foobar",
-			fields: fields{
-				name:   "foo",
-				nested: errors.New("bar"),
-			},
-			want: "foo",
-		},
+		{"ab", fields{"a", errors.New("b")}, "a"},
+		{"hello", fields{"hello", errors.New("world")}, "hello"},
+		{"foobar", fields{"foo", errors.New("bar")}, "foo"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -243,30 +138,9 @@ func Test_indexError_Error(t *testing.T) {
 		fields fields
 		want   string
 	}{
-		{
-			name: "0b",
-			fields: fields{
-				index:  0,
-				nested: errors.New("b"),
-			},
-			want: "[0]: b",
-		},
-		{
-			name: "hello",
-			fields: fields{
-				index:  1337,
-				nested: errors.New("hello world"),
-			},
-			want: "[1337]: hello world",
-		},
-		{
-			name: "foobar",
-			fields: fields{
-				index:  0xdeadbeef,
-				nested: errors.New("foobar"),
-			},
-			want: "[3735928559]: foobar",
-		},
+		{"0b", fields{0, errors.New("b")}, "[0]: b"},
+		{"hello", fields{1337, errors.New("hello world")}, "[1337]: hello world"},
+		{"foobar", fields{0xdeadbeef, errors.New("foobar")}, "[3735928559]: foobar"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -288,30 +162,9 @@ func Test_indexError_Index(t *testing.T) {
 		fields fields
 		want   int
 	}{
-		{
-			name: "0b",
-			fields: fields{
-				index:  0,
-				nested: errors.New("b"),
-			},
-			want: 0,
-		},
-		{
-			name: "hello",
-			fields: fields{
-				index:  1337,
-				nested: errors.New("hello world"),
-			},
-			want: 1337,
-		},
-		{
-			name: "foobar",
-			fields: fields{
-				index:  0xdeadbeef,
-				nested: errors.New("foobar"),
-			},
-			want: 0xdeadbeef,
-		},
+		{"0b", fields{0, errors.New("b")}, 0},
+		{"hello", fields{1337, errors.New("hello world")}, 1337},
+		{"foobar", fields{0xdeadbeef, errors.New("foobar")}, 0xdeadbeef},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -329,31 +182,19 @@ func TestErrors_Error(t *testing.T) {
 		es   validation.Errors
 		want string
 	}{
-		{
-			name: "foobarbaz",
-			es: []error{
-				errors.New("foo"),
-				errors.New("bar"),
-				errors.New("baz"),
-			},
-			want: "",
-		},
-		{
-			name: "validation",
-			es: []error{
-				validation.NewValueError("foo", errors.New("bar")),
-				validation.NewIndexError(13, errors.New("out of bounds")),
-			},
-			want: "foo: bar",
-		},
-		{
-			name: "rules",
-			es: []error{
-				validation.NewValueError("type", validation.NewRuleError("foo", "bar")),
-				validation.NewValueError("data", validation.NewRuleError("baz", "quux")),
-			},
-			want: "type: bar; data: quux",
-		},
+		{"foobarbaz", []error{
+			errors.New("foo"),
+			errors.New("bar"),
+			errors.New("baz"),
+		}, ""},
+		{"validation", []error{
+			validation.NewValueError("foo", errors.New("bar")),
+			validation.NewIndexError(13, errors.New("out of bounds")),
+		}, "foo: bar"},
+		{"rules", []error{
+			validation.NewValueError("type", validation.NewRuleError("foo", "bar")),
+			validation.NewValueError("data", validation.NewRuleError("baz", "quux")),
+		}, "type: bar; data: quux"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -371,17 +212,12 @@ func TestErrors_MarshalJSON(t *testing.T) {
 		want    []byte
 		wantErr bool
 	}{
-		{
-			name: "nested",
-			es: []error{
-				validation.NewValueError("foo", validation.NewIndexError(0, errors.New("bar"))),
-				errors.New("B"),
-				validation.NewValueError("baz", errors.New("quux")),
-				errors.New("A"),
-			},
-			want:    []byte(`{"foo":{"0":"bar"},"baz":"quux"}`),
-			wantErr: false,
-		},
+		{"nested", []error{
+			validation.NewValueError("foo", validation.NewIndexError(0, errors.New("bar"))),
+			errors.New("B"),
+			validation.NewValueError("baz", errors.New("quux")),
+			errors.New("A"),
+		}, []byte(`{"foo":{"0":"bar"},"baz":"quux"}`), false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

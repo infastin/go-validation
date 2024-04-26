@@ -1,6 +1,8 @@
 package validation
 
-import "time"
+import (
+	"time"
+)
 
 type requiredRule[T comparable] struct {
 	condition bool

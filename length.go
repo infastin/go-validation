@@ -94,7 +94,7 @@ func (r lengthMapRule[T]) Validate(m map[string]T) error {
 }
 
 func isValidLength(l, min, max int) bool {
-	return (min <= 0 || l >= min) && (max <= 0 || l <= max) && (min != 0 || max != 0 || l <= 0)
+	return (min == 0 || l >= min) && (max == 0 || l <= max) && (min != 0 || max != 0 || l == 0)
 }
 
 func buildLengthError(min, max int) error {
@@ -103,29 +103,28 @@ func buildLengthError(min, max int) error {
 		message strings.Builder
 	)
 
-	if min == 0 && max > 0 {
+	switch {
+	case min == 0 && max > 0:
 		code = "length_too_long"
 		message.WriteString("the length must be no more than ")
 		message.WriteString(strconv.Itoa(max))
-	} else if min > 0 && max == 0 {
+	case min > 0 && max == 0:
 		code = "length_too_short"
 		message.WriteString("the length must be no less than ")
 		message.WriteString(strconv.Itoa(min))
-	} else if min > 0 && max > 0 {
-		if min == max {
-			code = "length_invalid"
-			message.WriteString("the length must be exactly ")
-			message.WriteString(strconv.Itoa(min))
-		} else {
-			code = "length_out_of_range"
-			message.WriteString("the length must be between ")
-			message.WriteString(strconv.Itoa(min))
-			message.WriteString(" and ")
-			message.WriteString(strconv.Itoa(max))
-		}
-	} else {
+	case min == 0 && max == 0:
 		code = "length_empty_required"
 		message.WriteString("the value must be empty")
+	case min == max:
+		code = "length_invalid"
+		message.WriteString("the length must be exactly ")
+		message.WriteString(strconv.Itoa(min))
+	default:
+		code = "length_out_of_range"
+		message.WriteString("the length must be between ")
+		message.WriteString(strconv.Itoa(min))
+		message.WriteString(" and ")
+		message.WriteString(strconv.Itoa(max))
 	}
 
 	return NewRuleError(code, message.String())

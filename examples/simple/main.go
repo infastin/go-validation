@@ -5,18 +5,17 @@ import (
 	"time"
 
 	"github.com/infastin/go-validation"
-	"github.com/infastin/go-validation/is"
 )
 
 type GeneralInfo struct {
-	UserID     int    `json:"user_id"`
-	Device     Device `json:"device"`
-	AppVersion string `json:"app_version"`
+	UserID     [16]byte `json:"user_id"`
+	Device     Device   `json:"device"`
+	AppVersion string   `json:"app_version"`
 }
 
 func (info *GeneralInfo) Validate() error {
 	return validation.All(
-		validation.Int(info.UserID, "user_id").Required(true),
+		validation.Comparable(info.UserID, "user_id").Required(true),
 		validation.Ptr(&info.Device, "device").With(validation.Custom),
 		validation.String(info.AppVersion, "app_version").Required(true),
 	)
@@ -34,7 +33,7 @@ type Device struct {
 
 func (d *Device) Validate() error {
 	return validation.All(
-		validation.String(d.Manufacturer, "manufacturer").Required(true).With(is.Email),
+		validation.String(d.Manufacturer, "manufacturer").Required(true),
 		validation.String(d.Model, "model").Required(true),
 		validation.String(d.BuildNumber, "build_number").Required(true),
 	)

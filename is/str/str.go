@@ -1,4 +1,4 @@
-package is
+package isstr
 
 import (
 	"github.com/asaskevich/govalidator"

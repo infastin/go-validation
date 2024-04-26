@@ -7,12 +7,12 @@ import (
 	"github.com/infastin/go-validation/constraints"
 )
 
-type compareRule[T constraints.Ordered] struct {
+type compareRule[T any] struct {
 	comp       func(x T) bool
 	buildError func() error
 }
 
-func Equal[T constraints.Ordered](v T) compareRule[T] {
+func Equal[T comparable](v T) compareRule[T] {
 	return compareRule[T]{
 		comp: func(x T) bool {
 			return x == v

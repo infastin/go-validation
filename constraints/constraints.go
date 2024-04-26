@@ -12,6 +12,14 @@ type Float interface {
 	~float32 | ~float64
 }
 
+type Number interface {
+	Int | Uint | Float
+}
+
 type Ordered interface {
 	~string | Int | Uint | Float
+}
+
+type UUID interface {
+	~[16]byte
 }

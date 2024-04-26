@@ -53,7 +53,7 @@ func (pv PtrValidator[T]) Skip(condition bool) PtrValidator[T] {
 	return pv
 }
 
-func (pv PtrValidator[T]) When(condition bool, ok PtrRule[T], otherwise PtrRule[T]) PtrValidator[T] {
+func (pv PtrValidator[T]) When(condition bool, ok, otherwise PtrRule[T]) PtrValidator[T] {
 	if !pv.skip {
 		if condition {
 			pv.rules = append(pv.rules, ok)

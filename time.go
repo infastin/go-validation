@@ -112,7 +112,7 @@ func (sv TimeValidator) BetweenEqual(a, b time.Time) TimeValidator {
 	return sv
 }
 
-func (sv TimeValidator) When(condition bool, ok TimeRule, otherwise TimeRule) TimeValidator {
+func (sv TimeValidator) When(condition bool, ok, otherwise TimeRule) TimeValidator {
 	if !sv.skip {
 		if condition {
 			sv.rules = append(sv.rules, ok)

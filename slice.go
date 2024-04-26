@@ -81,7 +81,7 @@ func (sv SliceValidator[T]) Length(min, max int) SliceValidator[T] {
 	return sv
 }
 
-func (sv SliceValidator[T]) When(condition bool, ok SliceRule[T], otherwise SliceRule[T]) SliceValidator[T] {
+func (sv SliceValidator[T]) When(condition bool, ok, otherwise SliceRule[T]) SliceValidator[T] {
 	if !sv.skip {
 		if condition {
 			sv.rules = append(sv.rules, ok)
