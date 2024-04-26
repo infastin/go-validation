@@ -332,7 +332,7 @@ func CurrencyCode[T ~string](v T) error {
 	return nil
 }
 
-func CountryCodeL2[T ~string](v T) error {
+func CountryCode2L[T ~string](v T) error {
 	if !govalidator.IsISO3166Alpha2(string(v)) {
 		return ErrCountryCode2L
 	}
@@ -346,7 +346,7 @@ func CountryCode3L[T ~string](v T) error {
 	return nil
 }
 
-func LanguageCodeL2[T ~string](v T) error {
+func LanguageCode2L[T ~string](v T) error {
 	if !govalidator.IsISO693Alpha2(string(v)) {
 		return ErrLanguageCode2L
 	}
