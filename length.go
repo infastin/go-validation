@@ -17,15 +17,9 @@ func LengthString[T ~string](min, max int) lengthStringRule[T] {
 		min:  min,
 		max:  max,
 		rune: false,
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildLengthError(min, max)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildLengthError(min, max)
+		},
 	}
 }
 
@@ -34,15 +28,9 @@ func LengthStringRune[T ~string](min, max int) lengthStringRule[T] {
 		min:  min,
 		max:  max,
 		rune: true,
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildLengthError(min, max)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildLengthError(min, max)
+		},
 	}
 }
 
@@ -70,15 +58,9 @@ func LengthSlice[T any](min, max int) lengthSliceRule[T] {
 	return lengthSliceRule[T]{
 		min: min,
 		max: max,
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildLengthError(min, max)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildLengthError(min, max)
+		},
 	}
 }
 
@@ -98,15 +80,9 @@ func LengthMap[T any](min, max int) lengthMapRule[T] {
 	return lengthMapRule[T]{
 		min: min,
 		max: max,
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildLengthError(min, max)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildLengthError(min, max)
+		},
 	}
 }
 

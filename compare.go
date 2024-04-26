@@ -17,15 +17,9 @@ func Equal[T constraints.Ordered](v T) compareRule[T] {
 		comp: func(x T) bool {
 			return x == v
 		},
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildEqualError(v)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildEqualError(v)
+		},
 	}
 }
 
@@ -34,15 +28,9 @@ func Less[T constraints.Ordered](v T) compareRule[T] {
 		comp: func(x T) bool {
 			return x < v
 		},
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildLessError(v)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildLessError(v)
+		},
 	}
 }
 
@@ -51,15 +39,9 @@ func LessEqual[T constraints.Ordered](v T) compareRule[T] {
 		comp: func(x T) bool {
 			return x <= v
 		},
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildLessEqualError(v)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildLessEqualError(v)
+		},
 	}
 }
 
@@ -68,15 +50,9 @@ func Greater[T constraints.Ordered](v T) compareRule[T] {
 		comp: func(x T) bool {
 			return x > v
 		},
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildGreaterError(v)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildGreaterError(v)
+		},
 	}
 }
 
@@ -85,15 +61,9 @@ func GreaterEqual[T constraints.Ordered](v T) compareRule[T] {
 		comp: func(x T) bool {
 			return x > v
 		},
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildGreaterEqualError(v)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildGreaterEqualError(v)
+		},
 	}
 }
 
@@ -102,15 +72,9 @@ func Between[T constraints.Ordered](a, b T) compareRule[T] {
 		comp: func(x T) bool {
 			return x > a && x < b
 		},
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildBetweenError(a, b)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildBetweenError(a, b)
+		},
 	}
 }
 
@@ -119,15 +83,9 @@ func BetweenEqual[T constraints.Ordered](a, b T) compareRule[T] {
 		comp: func(x T) bool {
 			return x >= a && x <= b
 		},
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildBetweenEqualError(a, b)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildBetweenEqualError(a, b)
+		},
 	}
 }
 
@@ -148,15 +106,9 @@ func EqualTime(v time.Time) compareTimeRule {
 		comp: func(x time.Time) bool {
 			return x.Equal(v)
 		},
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildEqualError(v)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildEqualError(v)
+		},
 	}
 }
 
@@ -165,15 +117,9 @@ func LessTime(v time.Time) compareTimeRule {
 		comp: func(x time.Time) bool {
 			return x.Compare(v) < 0
 		},
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildLessError(v)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildLessError(v)
+		},
 	}
 }
 
@@ -182,15 +128,9 @@ func LessEqualTime(v time.Time) compareTimeRule {
 		comp: func(x time.Time) bool {
 			return x.Compare(v) <= 0
 		},
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildLessEqualError(v)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildLessEqualError(v)
+		},
 	}
 }
 
@@ -199,15 +139,9 @@ func GreaterTime(v time.Time) compareTimeRule {
 		comp: func(x time.Time) bool {
 			return x.Compare(v) > 0
 		},
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildGreaterError(v)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildGreaterError(v)
+		},
 	}
 }
 
@@ -216,15 +150,9 @@ func GreaterEqualTime(v time.Time) compareTimeRule {
 		comp: func(x time.Time) bool {
 			return x.Compare(v) >= 0
 		},
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildGreaterEqualError(v)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildGreaterEqualError(v)
+		},
 	}
 }
 
@@ -233,15 +161,9 @@ func BetweenTime(a, b time.Time) compareTimeRule {
 		comp: func(x time.Time) bool {
 			return x.After(a) && x.Before(b)
 		},
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildBetweenError(a, b)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildBetweenError(a, b)
+		},
 	}
 }
 
@@ -250,15 +172,9 @@ func BetweenEqualTime(a, b time.Time) compareTimeRule {
 		comp: func(x time.Time) bool {
 			return x.Compare(a) >= 0 && x.Compare(b) <= 0
 		},
-		buildError: func() func() error {
-			var err error
-			return func() error {
-				if err == nil {
-					err = buildBetweenEqualError(a, b)
-				}
-				return err
-			}
-		}(),
+		buildError: func() error {
+			return buildBetweenEqualError(a, b)
+		},
 	}
 }
 
