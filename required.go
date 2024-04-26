@@ -6,7 +6,10 @@ type requiredRule[T comparable] struct {
 	condition bool
 }
 
-var ErrRequired = NewRuleError("required", "cannot be blank")
+var (
+	ErrRequired      = NewRuleError("required", "cannot be blank")
+	ErrNilOrNotEmpty = NewRuleError("nil_or_not_empty_required", "cannot be blank")
+)
 
 func Required[T comparable](condition bool) requiredRule[T] {
 	return requiredRule[T]{
@@ -40,34 +43,60 @@ func (r requiredTimeRule) Validate(v time.Time) error {
 
 type requiredSliceRule[T any] struct {
 	condition bool
+	skipNil   bool
 }
 
 func RequiredSlice[T any](condition bool) requiredSliceRule[T] {
 	return requiredSliceRule[T]{
 		condition: condition,
+		skipNil:   false,
+	}
+}
+
+func NilOrNotEmptySlice[T any](condition bool) requiredSliceRule[T] {
+	return requiredSliceRule[T]{
+		condition: condition,
+		skipNil:   true,
 	}
 }
 
 func (r requiredSliceRule[T]) Validate(s []T) error {
 	if r.condition && len(s) == 0 {
-		return ErrRequired
+		if r.skipNil && s != nil {
+			return ErrNilOrNotEmpty
+		} else if !r.skipNil {
+			return ErrRequired
+		}
 	}
 	return nil
 }
 
 type requiredMapRule[T any] struct {
 	condition bool
+	skipNil   bool
 }
 
 func RequiredMap[T any](condition bool) requiredMapRule[T] {
 	return requiredMapRule[T]{
 		condition: condition,
+		skipNil:   false,
+	}
+}
+
+func NilOrNotEmptyMap[T any](condition bool) requiredMapRule[T] {
+	return requiredMapRule[T]{
+		condition: condition,
+		skipNil:   true,
 	}
 }
 
 func (r requiredMapRule[T]) Validate(s map[string]T) error {
 	if r.condition && len(s) == 0 {
-		return ErrRequired
+		if r.skipNil && s != nil {
+			return ErrNilOrNotEmpty
+		} else if !r.skipNil {
+			return ErrRequired
+		}
 	}
 	return nil
 }
