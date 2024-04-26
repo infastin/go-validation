@@ -33,6 +33,13 @@ func SliceV[T any]() SliceValidation[T] {
 	}
 }
 
+func (sv SliceValidation[T]) Required(condition bool) SliceValidation[T] {
+	if !sv.skip {
+		sv.rules = append(sv.rules, RequiredSlice[T](condition))
+	}
+	return sv
+}
+
 func (sv SliceValidation[T]) NotNil(condition bool) SliceValidation[T] {
 	if !sv.skip {
 		sv.rules = append(sv.rules, NotNilSlice[T](condition))

@@ -8,13 +8,6 @@ type requiredRule[T comparable] struct {
 
 var ErrRequired = NewRuleError("required", "cannot be blank")
 
-func Example[T comparable](v T) error {
-	if v == *new(T) {
-		return ErrRequired
-	}
-	return nil
-}
-
 func Required[T comparable](condition bool) requiredRule[T] {
 	return requiredRule[T]{
 		condition: condition,
@@ -40,6 +33,40 @@ func RequiredTime(condition bool) requiredTimeRule {
 
 func (r requiredTimeRule) Validate(v time.Time) error {
 	if r.condition && v.IsZero() {
+		return ErrRequired
+	}
+	return nil
+}
+
+type requiredSliceRule[T any] struct {
+	condition bool
+}
+
+func RequiredSlice[T any](condition bool) requiredSliceRule[T] {
+	return requiredSliceRule[T]{
+		condition: condition,
+	}
+}
+
+func (r requiredSliceRule[T]) Validate(s []T) error {
+	if r.condition && len(s) == 0 {
+		return ErrRequired
+	}
+	return nil
+}
+
+type requiredMapRule[T any] struct {
+	condition bool
+}
+
+func RequiredMap[T any](condition bool) requiredMapRule[T] {
+	return requiredMapRule[T]{
+		condition: condition,
+	}
+}
+
+func (r requiredMapRule[T]) Validate(s map[string]T) error {
+	if r.condition && len(s) == 0 {
 		return ErrRequired
 	}
 	return nil

@@ -32,6 +32,13 @@ func MapV[T any]() MapValidation[T] {
 	}
 }
 
+func (mv MapValidation[T]) Required(condition bool) MapValidation[T] {
+	if !mv.skip {
+		mv.rules = append(mv.rules, RequiredMap[T](condition))
+	}
+	return mv
+}
+
 func (mv MapValidation[T]) NotNil(condition bool) MapValidation[T] {
 	if !mv.skip {
 		mv.rules = append(mv.rules, NotNilMap[T](condition))
