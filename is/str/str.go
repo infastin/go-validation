@@ -1,6 +1,8 @@
 package isstr
 
 import (
+	"regexp"
+
 	"github.com/asaskevich/govalidator"
 	"github.com/infastin/go-validation"
 )
@@ -20,6 +22,7 @@ var (
 	ErrUUIDv3         = validation.NewRuleError("is_uuid_v3", "must be a valid UUID v3")
 	ErrUUIDv4         = validation.NewRuleError("is_uuid_v4", "must be a valid UUID v4")
 	ErrUUIDv5         = validation.NewRuleError("is_uuid_v5", "must be a valid UUID v5")
+	ErrUUIDv7         = validation.NewRuleError("is_uuid_v5", "must be a valid UUID v7")
 	ErrUUID           = validation.NewRuleError("is_uuid", "must be a valid UUID")
 	ErrULID           = validation.NewRuleError("is_uuid", "must be a valid ULID")
 	ErrJSON           = validation.NewRuleError("is_json", "must be in valid JSON format")
@@ -41,6 +44,19 @@ var (
 	ErrRequestURL     = validation.NewRuleError("is_request_url", "must be a valid request URL")
 	ErrRequestURI     = validation.NewRuleError("request_is_request_uri", "must be a valid request URI")
 	ErrCreditCard     = validation.NewRuleError("is_credit_card", "must be a valid credit card number")
+	ErrISBN10         = validation.NewRuleError("is_isbn_10", "must be a valid ISBN-10")
+	ErrISBN13         = validation.NewRuleError("is_isbn_13", "must be a valid ISBN-13")
+	ErrISBN           = validation.NewRuleError("is_isbn", "must be a valid ISBN")
+	ErrMongoID        = validation.NewRuleError("is_mongo_id", "must be a valid hex-encoded MongoDB ObjectId")
+	ErrCurrencyCode   = validation.NewRuleError("is_currency_code", "must be a valid currency code")
+	ErrCountryCode2L  = validation.NewRuleError("is_two_letter_country_code", "must be a valid two-letter country code")
+	ErrCountryCode3L  = validation.NewRuleError("is_three_letter_country_code", "must be a valid three-letter country code")
+	ErrLanguageCode2L = validation.NewRuleError("is_two_letter_language_code", "must be a valid two-letter country code")
+	ErrLanguageCode3L = validation.NewRuleError("is_three_letter_language_code", "must be a valid three-letter country code")
+)
+
+var (
+	rxUUID7 = regexp.MustCompile("^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$")
 )
 
 func HexColor[T ~string](v T) error {
@@ -144,6 +160,13 @@ func UUIDv4[T ~string](v T) error {
 func UUIDv5[T ~string](v T) error {
 	if !govalidator.IsUUIDv5(string(v)) {
 		return ErrUUIDv5
+	}
+	return nil
+}
+
+func UUIDv7[T ~string](v T) error {
+	if !rxUUID7.MatchString(string(v)) {
+		return ErrUUIDv7
 	}
 	return nil
 }
@@ -270,6 +293,69 @@ func RequestURI[T ~string](v T) error {
 func CreditCard[T ~string](v T) error {
 	if !govalidator.IsCreditCard(string(v)) {
 		return ErrCreditCard
+	}
+	return nil
+}
+
+func ISBN10[T ~string](v T) error {
+	if !govalidator.IsISBN10(string(v)) {
+		return ErrISBN10
+	}
+	return nil
+}
+
+func ISBN13[T ~string](v T) error {
+	if !govalidator.IsISBN13(string(v)) {
+		return ErrISBN13
+	}
+	return nil
+}
+
+func ISBN[T ~string](v T) error {
+	if !govalidator.IsISBN10(string(v)) && !govalidator.IsISBN13(string(v)) {
+		return ErrISBN
+	}
+	return nil
+}
+
+func MongoID[T ~string](v T) error {
+	if !govalidator.IsMongoID(string(v)) {
+		return ErrMongoID
+	}
+	return nil
+}
+
+func CurrencyCode[T ~string](v T) error {
+	if !govalidator.IsISO4217(string(v)) {
+		return ErrCurrencyCode
+	}
+	return nil
+}
+
+func CountryCodeL2[T ~string](v T) error {
+	if !govalidator.IsISO3166Alpha2(string(v)) {
+		return ErrCountryCode2L
+	}
+	return nil
+}
+
+func CountryCode3L[T ~string](v T) error {
+	if !govalidator.IsISO3166Alpha3(string(v)) {
+		return ErrCountryCode3L
+	}
+	return nil
+}
+
+func LanguageCodeL2[T ~string](v T) error {
+	if !govalidator.IsISO693Alpha2(string(v)) {
+		return ErrLanguageCode2L
+	}
+	return nil
+}
+
+func LanguageCode3L[T ~string](v T) error {
+	if !govalidator.IsISO693Alpha3b(string(v)) {
+		return ErrLanguageCode3L
 	}
 	return nil
 }
