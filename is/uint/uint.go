@@ -1,4 +1,4 @@
-package isint
+package isuint
 
 import (
 	"github.com/infastin/go-validation"
@@ -9,8 +9,8 @@ var (
 	ErrPort = validation.NewRuleError("is_port", "must be a valid port number")
 )
 
-func Port[T constraints.Int](i T) error {
-	if i <= 0 || int32(i) >= 65536 {
+func Port[T constraints.Uint](i T) error {
+	if i == 0 || uint32(i) >= 65536 {
 		return ErrPort
 	}
 	return nil
