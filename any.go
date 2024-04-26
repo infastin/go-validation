@@ -2,20 +2,20 @@ package validation
 
 import "slices"
 
-type anyValidatableData[T any] struct {
+type anyValidatorData[T any] struct {
 	value T
 	name  string
 }
 
-type AnyValidation[T any] struct {
-	data  *anyValidatableData[T]
+type AnyValidator[T any] struct {
+	data  *anyValidatorData[T]
 	rules []AnyRule[T]
 	skip  bool
 }
 
-func Any[T Validatable](v T, name string) AnyValidation[T] {
-	return AnyValidation[T]{
-		data: &anyValidatableData[T]{
+func Any[T any](v T, name string) AnyValidator[T] {
+	return AnyValidator[T]{
+		data: &anyValidatorData[T]{
 			value: v,
 			name:  name,
 		},
@@ -24,29 +24,29 @@ func Any[T Validatable](v T, name string) AnyValidation[T] {
 	}
 }
 
-func AnyV[T Validatable]() AnyValidation[T] {
-	return AnyValidation[T]{
+func AnyV[T any]() AnyValidator[T] {
+	return AnyValidator[T]{
 		data:  nil,
 		rules: make([]AnyRule[T], 0),
 		skip:  false,
 	}
 }
 
-func (av AnyValidation[T]) Required(condition bool, isDefault func(v T) bool) AnyValidation[T] {
+func (av AnyValidator[T]) Required(condition bool, isDefault func(v T) bool) AnyValidator[T] {
 	if !av.skip {
 		av.rules = append(av.rules, RequiredAny[T](condition, isDefault))
 	}
 	return av
 }
 
-func (av AnyValidation[T]) Skip(condition bool) AnyValidation[T] {
+func (av AnyValidator[T]) Skip(condition bool) AnyValidator[T] {
 	if !av.skip && condition {
 		av.skip = true
 	}
 	return av
 }
 
-func (av AnyValidation[T]) When(condition bool, ok AnyRule[T], otherwise AnyRule[T]) AnyValidation[T] {
+func (av AnyValidator[T]) When(condition bool, ok AnyRule[T], otherwise AnyRule[T]) AnyValidator[T] {
 	if !av.skip {
 		if condition {
 			av.rules = append(av.rules, ok)
@@ -57,7 +57,7 @@ func (av AnyValidation[T]) When(condition bool, ok AnyRule[T], otherwise AnyRule
 	return av
 }
 
-func (av AnyValidation[T]) With(fns ...func(v T) error) AnyValidation[T] {
+func (av AnyValidator[T]) With(fns ...func(v T) error) AnyValidator[T] {
 	if !av.skip {
 		slices.Grow(av.rules, len(fns))
 		for _, fn := range fns {
@@ -67,14 +67,14 @@ func (av AnyValidation[T]) With(fns ...func(v T) error) AnyValidation[T] {
 	return av
 }
 
-func (av AnyValidation[T]) By(rules ...AnyRule[T]) AnyValidation[T] {
+func (av AnyValidator[T]) By(rules ...AnyRule[T]) AnyValidator[T] {
 	if !av.skip {
 		av.rules = append(av.rules, rules...)
 	}
 	return av
 }
 
-func (av AnyValidation[T]) Valid() error {
+func (av AnyValidator[T]) Valid() error {
 	for _, rule := range av.rules {
 		if err := rule.Validate(av.data.value); err != nil {
 			return NewValueError(av.data.name, err)
@@ -83,7 +83,7 @@ func (av AnyValidation[T]) Valid() error {
 	return nil
 }
 
-func (av AnyValidation[T]) Validate(v T) error {
+func (av AnyValidator[T]) Validate(v T) error {
 	for _, rule := range av.rules {
 		if err := rule.Validate(v); err != nil {
 			return err

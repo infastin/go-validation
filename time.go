@@ -5,20 +5,20 @@ import (
 	"time"
 )
 
-type timeValidationData struct {
+type timeValidatorData struct {
 	value time.Time
 	name  string
 }
 
-type TimeValidation struct {
-	data  *timeValidationData
+type TimeValidator struct {
+	data  *timeValidatorData
 	rules []TimeRule
 	skip  bool
 }
 
-func Time(v time.Time, name string) TimeValidation {
-	return TimeValidation{
-		data: &timeValidationData{
+func Time(v time.Time, name string) TimeValidator {
+	return TimeValidator{
+		data: &timeValidatorData{
 			value: v,
 			name:  name,
 		},
@@ -27,92 +27,92 @@ func Time(v time.Time, name string) TimeValidation {
 	}
 }
 
-func TimeV() TimeValidation {
-	return TimeValidation{
+func TimeV() TimeValidator {
+	return TimeValidator{
 		data:  nil,
 		rules: make([]TimeRule, 0),
 		skip:  false,
 	}
 }
 
-func (sv TimeValidation) Required(condition bool) TimeValidation {
+func (sv TimeValidator) Required(condition bool) TimeValidator {
 	if !sv.skip {
 		sv.rules = append(sv.rules, RequiredTime(condition))
 	}
 	return sv
 }
 
-func (sv TimeValidation) Skip(condition bool) TimeValidation {
+func (sv TimeValidator) Skip(condition bool) TimeValidator {
 	if !sv.skip && condition {
 		sv.skip = true
 	}
 	return sv
 }
 
-func (sv TimeValidation) In(elements ...time.Time) TimeValidation {
+func (sv TimeValidator) In(elements ...time.Time) TimeValidator {
 	if !sv.skip {
 		sv.rules = append(sv.rules, InTime(elements...))
 	}
 	return sv
 }
 
-func (sv TimeValidation) NotIn(elements ...time.Time) TimeValidation {
+func (sv TimeValidator) NotIn(elements ...time.Time) TimeValidator {
 	if !sv.skip {
 		sv.rules = append(sv.rules, NotInTime(elements...))
 	}
 	return sv
 }
 
-func (sv TimeValidation) Equal(v time.Time) TimeValidation {
+func (sv TimeValidator) Equal(v time.Time) TimeValidator {
 	if !sv.skip {
 		sv.rules = append(sv.rules, EqualTime(v))
 	}
 	return sv
 }
 
-func (sv TimeValidation) Less(v time.Time) TimeValidation {
+func (sv TimeValidator) Less(v time.Time) TimeValidator {
 	if !sv.skip {
 		sv.rules = append(sv.rules, LessTime(v))
 	}
 	return sv
 }
 
-func (sv TimeValidation) LessEqual(v time.Time) TimeValidation {
+func (sv TimeValidator) LessEqual(v time.Time) TimeValidator {
 	if !sv.skip {
 		sv.rules = append(sv.rules, LessEqualTime(v))
 	}
 	return sv
 }
 
-func (sv TimeValidation) Greater(v time.Time) TimeValidation {
+func (sv TimeValidator) Greater(v time.Time) TimeValidator {
 	if !sv.skip {
 		sv.rules = append(sv.rules, GreaterTime(v))
 	}
 	return sv
 }
 
-func (sv TimeValidation) GreaterEqual(v time.Time) TimeValidation {
+func (sv TimeValidator) GreaterEqual(v time.Time) TimeValidator {
 	if !sv.skip {
 		sv.rules = append(sv.rules, GreaterEqualTime(v))
 	}
 	return sv
 }
 
-func (sv TimeValidation) Between(a, b time.Time) TimeValidation {
+func (sv TimeValidator) Between(a, b time.Time) TimeValidator {
 	if !sv.skip {
 		sv.rules = append(sv.rules, BetweenTime(a, b))
 	}
 	return sv
 }
 
-func (sv TimeValidation) BetweenEqual(a, b time.Time) TimeValidation {
+func (sv TimeValidator) BetweenEqual(a, b time.Time) TimeValidator {
 	if !sv.skip {
 		sv.rules = append(sv.rules, BetweenEqualTime(a, b))
 	}
 	return sv
 }
 
-func (sv TimeValidation) When(condition bool, ok TimeRule, otherwise TimeRule) TimeValidation {
+func (sv TimeValidator) When(condition bool, ok TimeRule, otherwise TimeRule) TimeValidator {
 	if !sv.skip {
 		if condition {
 			sv.rules = append(sv.rules, ok)
@@ -123,7 +123,7 @@ func (sv TimeValidation) When(condition bool, ok TimeRule, otherwise TimeRule) T
 	return sv
 }
 
-func (sv TimeValidation) With(fns ...func(v time.Time) error) TimeValidation {
+func (sv TimeValidator) With(fns ...func(v time.Time) error) TimeValidator {
 	if !sv.skip {
 		slices.Grow(sv.rules, len(fns))
 		for _, fn := range fns {
@@ -133,14 +133,14 @@ func (sv TimeValidation) With(fns ...func(v time.Time) error) TimeValidation {
 	return sv
 }
 
-func (sv TimeValidation) By(rules ...TimeRule) TimeValidation {
+func (sv TimeValidator) By(rules ...TimeRule) TimeValidator {
 	if !sv.skip {
 		sv.rules = append(sv.rules, rules...)
 	}
 	return sv
 }
 
-func (sv TimeValidation) Valid() error {
+func (sv TimeValidator) Valid() error {
 	for _, rule := range sv.rules {
 		if err := rule.Validate(sv.data.value); err != nil {
 			return NewValueError(sv.data.name, err)
@@ -149,7 +149,7 @@ func (sv TimeValidation) Valid() error {
 	return nil
 }
 
-func (sv TimeValidation) Validate(v time.Time) error {
+func (sv TimeValidator) Validate(v time.Time) error {
 	for _, rule := range sv.rules {
 		if err := rule.Validate(v); err != nil {
 			return err

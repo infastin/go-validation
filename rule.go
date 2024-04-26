@@ -10,10 +10,6 @@ type Validatable interface {
 	Validate() error
 }
 
-type Rule[T any] interface {
-	Validate(v T) error
-}
-
 type StringRule[T ~string] interface {
 	Validate(s T) error
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -18,7 +17,7 @@ type GeneralInfo struct {
 func (info *GeneralInfo) Validate() error {
 	return validation.All(
 		validation.Int(info.UserID, "user_id").Required(true),
-		validation.Custom(&info.Device, "device").Wrap(),
+		validation.Ptr(&info.Device, "device").With(validation.Custom),
 		validation.String(info.AppVersion, "app_version").Required(true),
 	)
 }
@@ -62,17 +61,12 @@ type TrackRequest struct {
 
 func (tr *TrackRequest) Validate() error {
 	return validation.All(
-		validation.Custom(&tr.Info, "info").Wrap(),
-		validation.Slice(tr.Data, "data").NotNil(true).Wrap().DivePtr(validation.CustomV[*Telemetry]()),
+		validation.Ptr(&tr.Info, "info").With(validation.Custom),
+		validation.Slice(tr.Data, "data").NotNil(true).ValuesPtrWith(validation.Custom),
 	)
 }
 
 func main() {
-	t := TrackRequest{
-		Data: make([]Telemetry, 1),
-	}
-	err := t.Validate()
-
-	d, _ := json.MarshalIndent(err.(validation.Errors), "", "  ")
-	fmt.Printf("%s", d)
+	tr := TrackRequest{}
+	fmt.Println(tr.Validate())
 }

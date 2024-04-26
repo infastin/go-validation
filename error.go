@@ -98,12 +98,11 @@ func (ie *indexError) Error() string {
 
 	var b strings.Builder
 
-	b.Grow(2 + len(idx) + 3 + len(msg) + 1)
-	b.WriteString("([")
+	b.Grow(1 + len(idx) + 3 + len(msg))
+	b.WriteByte('[')
 	b.WriteString(idx)
 	b.WriteString("]: ")
 	b.WriteString(msg)
-	b.WriteByte(')')
 
 	return b.String()
 }
@@ -116,39 +115,41 @@ func (ie *indexError) Unwrap() error {
 	return ie.nested
 }
 
-type WrapError interface {
-	Error() string
-	Unwrap() error
-}
+type Errors []error
 
-type wrapError struct {
-	nested error
-}
-
-func NewWrapError(nested error) WrapError {
-	return &wrapError{
-		nested: nested,
+func errorWriteString(err error, b *strings.Builder) {
+	switch e := err.(type) {
+	case Errors:
+		b.WriteByte('(')
+		e.writeString(b)
+		b.WriteByte(')')
+	case IndexError:
+		b.WriteByte('(')
+		b.WriteString(strconv.Itoa(e.Index()))
+		b.WriteString(": ")
+		errorWriteString(e.Unwrap(), b)
+		b.WriteByte(')')
+	default:
+		b.WriteString(e.Error())
 	}
 }
 
-func (we *wrapError) Error() string {
-	msg := we.nested.Error()
+func (es Errors) writeString(b *strings.Builder) {
+	for i, err := range es {
+		ve, ok := err.(ValueError)
+		if !ok {
+			continue
+		}
 
-	var b strings.Builder
+		if i != 0 {
+			b.WriteString("; ")
+		}
 
-	b.Grow(1 + len(msg) + 1)
-	b.WriteByte('(')
-	b.WriteString(msg)
-	b.WriteByte(')')
-
-	return b.String()
+		b.WriteString(ve.Name())
+		b.WriteString(": ")
+		errorWriteString(ve.Unwrap(), b)
+	}
 }
-
-func (we *wrapError) Unwrap() error {
-	return we.nested
-}
-
-type Errors []error
 
 func (es Errors) Error() string {
 	if len(es) == 0 {
@@ -156,13 +157,7 @@ func (es Errors) Error() string {
 	}
 
 	var b strings.Builder
-
-	for i, e := range es {
-		if i != 0 {
-			b.WriteString("; ")
-		}
-		b.WriteString(e.Error())
-	}
+	es.writeString(&b)
 
 	return b.String()
 }
@@ -177,9 +172,6 @@ func errorMarshalJSON(err error, b []byte) []byte {
 		b = append(b, '"', ':')
 		b = errorMarshalJSON(e.Unwrap(), b)
 		b = append(b, '}')
-	case WrapError:
-		err = e.Unwrap()
-		b = errorMarshalJSON(err, b)
 	default:
 		b = strconv.AppendQuote(b, e.Error())
 	}

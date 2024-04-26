@@ -249,7 +249,7 @@ func Test_indexError_Error(t *testing.T) {
 				index:  0,
 				nested: errors.New("b"),
 			},
-			want: "([0]: b)",
+			want: "[0]: b",
 		},
 		{
 			name: "hello",
@@ -257,7 +257,7 @@ func Test_indexError_Error(t *testing.T) {
 				index:  1337,
 				nested: errors.New("hello world"),
 			},
-			want: "([1337]: hello world)",
+			want: "[1337]: hello world",
 		},
 		{
 			name: "foobar",
@@ -265,7 +265,7 @@ func Test_indexError_Error(t *testing.T) {
 				index:  0xdeadbeef,
 				nested: errors.New("foobar"),
 			},
-			want: "([3735928559]: foobar)",
+			want: "[3735928559]: foobar",
 		},
 	}
 	for _, tt := range tests {
@@ -323,47 +323,6 @@ func Test_indexError_Index(t *testing.T) {
 	}
 }
 
-func Test_wrapError_Error(t *testing.T) {
-	type fields struct {
-		nested error
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   string
-	}{
-		{
-			name: "ab",
-			fields: fields{
-				nested: errors.New("b"),
-			},
-			want: "(b)",
-		},
-		{
-			name: "hello",
-			fields: fields{
-				nested: errors.New("world"),
-			},
-			want: "(world)",
-		},
-		{
-			name: "foobar",
-			fields: fields{
-				nested: errors.New("bar"),
-			},
-			want: "(bar)",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			we := validation.NewWrapError(tt.fields.nested)
-			if got := we.Error(); got != tt.want {
-				t.Errorf("wrapError.Error() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestErrors_Error(t *testing.T) {
 	tests := []struct {
 		name string
@@ -377,16 +336,15 @@ func TestErrors_Error(t *testing.T) {
 				errors.New("bar"),
 				errors.New("baz"),
 			},
-			want: "foo; bar; baz",
+			want: "",
 		},
 		{
 			name: "validation",
 			es: []error{
 				validation.NewValueError("foo", errors.New("bar")),
-				validation.NewWrapError(errors.New("all your codebase are belong to us")),
 				validation.NewIndexError(13, errors.New("out of bounds")),
 			},
-			want: "foo: bar; (all your codebase are belong to us); ([13]: out of bounds)",
+			want: "foo: bar",
 		},
 		{
 			name: "rules",
