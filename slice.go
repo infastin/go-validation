@@ -47,6 +47,13 @@ func (sv SliceValidation[T]) NilOrNotEmpty(condition bool) SliceValidation[T] {
 	return sv
 }
 
+func (sv SliceValidation[T]) Empty(condition bool) SliceValidation[T] {
+	if !sv.skip {
+		sv.rules = append(sv.rules, EmptySlice[T](condition))
+	}
+	return sv
+}
+
 func (sv SliceValidation[T]) NotNil(condition bool) SliceValidation[T] {
 	if !sv.skip {
 		sv.rules = append(sv.rules, NotNilSlice[T](condition))

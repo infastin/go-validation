@@ -1,9 +1,11 @@
-package validation
+package validation_test
 
 import (
 	"errors"
 	"reflect"
 	"testing"
+
+	"github.com/infastin/go-validation"
 )
 
 func Test_ruleError_Error(t *testing.T) {
@@ -43,10 +45,7 @@ func Test_ruleError_Error(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			re := &ruleError{
-				code:    tt.fields.code,
-				message: tt.fields.message,
-			}
+			re := validation.NewRuleError(tt.fields.code, tt.fields.message)
 			if got := re.Error(); got != tt.want {
 				t.Errorf("ruleError.Error() = %v, want %v", got, tt.want)
 			}
@@ -91,10 +90,7 @@ func Test_ruleError_Code(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			re := &ruleError{
-				code:    tt.fields.code,
-				message: tt.fields.message,
-			}
+			re := validation.NewRuleError(tt.fields.code, tt.fields.message)
 			if got := re.Code(); got != tt.want {
 				t.Errorf("ruleError.Code() = %v, want %v", got, tt.want)
 			}
@@ -139,10 +135,7 @@ func Test_ruleError_Message(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			re := &ruleError{
-				code:    tt.fields.code,
-				message: tt.fields.message,
-			}
+			re := validation.NewRuleError(tt.fields.code, tt.fields.message)
 			if got := re.Message(); got != tt.want {
 				t.Errorf("ruleError.Message() = %v, want %v", got, tt.want)
 			}
@@ -187,10 +180,7 @@ func Test_valueError_Error(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ve := &valueError{
-				name:   tt.fields.name,
-				nested: tt.fields.nested,
-			}
+			ve := validation.NewValueError(tt.fields.name, tt.fields.nested)
 			if got := ve.Error(); got != tt.want {
 				t.Errorf("valueError.Error() = %v, want %v", got, tt.want)
 			}
@@ -235,10 +225,7 @@ func Test_valueError_Name(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ve := &valueError{
-				name:   tt.fields.name,
-				nested: tt.fields.nested,
-			}
+			ve := validation.NewValueError(tt.fields.name, tt.fields.nested)
 			if got := ve.Name(); got != tt.want {
 				t.Errorf("valueError.Name() = %v, want %v", got, tt.want)
 			}
@@ -283,10 +270,7 @@ func Test_indexError_Error(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ie := &indexError{
-				index:  tt.fields.index,
-				nested: tt.fields.nested,
-			}
+			ie := validation.NewIndexError(tt.fields.index, tt.fields.nested)
 			if got := ie.Error(); got != tt.want {
 				t.Errorf("indexError.Error() = %v, want %v", got, tt.want)
 			}
@@ -331,10 +315,7 @@ func Test_indexError_Index(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ie := &indexError{
-				index:  tt.fields.index,
-				nested: tt.fields.nested,
-			}
+			ie := validation.NewIndexError(tt.fields.index, tt.fields.nested)
 			if got := ie.Index(); got != tt.want {
 				t.Errorf("indexError.Index() = %v, want %v", got, tt.want)
 			}
@@ -375,9 +356,7 @@ func Test_wrapError_Error(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			we := &wrapError{
-				nested: tt.fields.nested,
-			}
+			we := validation.NewWrapError(tt.fields.nested)
 			if got := we.Error(); got != tt.want {
 				t.Errorf("wrapError.Error() = %v, want %v", got, tt.want)
 			}
@@ -388,7 +367,7 @@ func Test_wrapError_Error(t *testing.T) {
 func TestErrors_Error(t *testing.T) {
 	tests := []struct {
 		name string
-		es   Errors
+		es   validation.Errors
 		want string
 	}{
 		{
@@ -403,31 +382,17 @@ func TestErrors_Error(t *testing.T) {
 		{
 			name: "validation",
 			es: []error{
-				&valueError{
-					name:   "foo",
-					nested: errors.New("bar"),
-				},
-				&wrapError{
-					nested: errors.New("all your codebase are belong to us"),
-				},
-				&indexError{
-					index:  13,
-					nested: errors.New("out of bounds"),
-				},
+				validation.NewValueError("foo", errors.New("bar")),
+				validation.NewWrapError(errors.New("all your codebase are belong to us")),
+				validation.NewIndexError(13, errors.New("out of bounds")),
 			},
 			want: "foo: bar; (all your codebase are belong to us); ([13]: out of bounds)",
 		},
 		{
 			name: "rules",
 			es: []error{
-				&valueError{
-					name:   "type",
-					nested: NewRuleError("foo", "bar"),
-				},
-				&valueError{
-					name:   "data",
-					nested: NewRuleError("baz", "quux"),
-				},
+				validation.NewValueError("type", validation.NewRuleError("foo", "bar")),
+				validation.NewValueError("data", validation.NewRuleError("baz", "quux")),
 			},
 			want: "type: bar; data: quux",
 		},
@@ -444,25 +409,16 @@ func TestErrors_Error(t *testing.T) {
 func TestErrors_MarshalJSON(t *testing.T) {
 	tests := []struct {
 		name    string
-		es      Errors
+		es      validation.Errors
 		want    []byte
 		wantErr bool
 	}{
 		{
 			name: "nested",
 			es: []error{
-				&valueError{
-					name: "foo",
-					nested: &indexError{
-						index:  0,
-						nested: errors.New("bar"),
-					},
-				},
+				validation.NewValueError("foo", validation.NewIndexError(0, errors.New("bar"))),
 				errors.New("B"),
-				&valueError{
-					name:   "baz",
-					nested: errors.New("quux"),
-				},
+				validation.NewValueError("baz", errors.New("quux")),
 				errors.New("A"),
 			},
 			want:    []byte(`{"foo":{"0":"bar"},"baz":"quux"}`),

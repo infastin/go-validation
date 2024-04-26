@@ -62,10 +62,10 @@ func NilOrNotEmptySlice[T any](condition bool) requiredSliceRule[T] {
 
 func (r requiredSliceRule[T]) Validate(s []T) error {
 	if r.condition && len(s) == 0 {
-		if r.skipNil && s != nil {
-			return ErrNilOrNotEmpty
-		} else if !r.skipNil {
+		if !r.skipNil {
 			return ErrRequired
+		} else if s != nil {
+			return ErrNilOrNotEmpty
 		}
 	}
 	return nil
@@ -73,29 +73,29 @@ func (r requiredSliceRule[T]) Validate(s []T) error {
 
 type requiredMapRule[T any] struct {
 	condition bool
-	skipNil   bool
+	checkNil  bool
 }
 
 func RequiredMap[T any](condition bool) requiredMapRule[T] {
 	return requiredMapRule[T]{
 		condition: condition,
-		skipNil:   false,
+		checkNil:  false,
 	}
 }
 
 func NilOrNotEmptyMap[T any](condition bool) requiredMapRule[T] {
 	return requiredMapRule[T]{
 		condition: condition,
-		skipNil:   true,
+		checkNil:  true,
 	}
 }
 
 func (r requiredMapRule[T]) Validate(s map[string]T) error {
 	if r.condition && len(s) == 0 {
-		if r.skipNil && s != nil {
-			return ErrNilOrNotEmpty
-		} else if !r.skipNil {
+		if !r.checkNil {
 			return ErrRequired
+		} else if s != nil {
+			return ErrNilOrNotEmpty
 		}
 	}
 	return nil
