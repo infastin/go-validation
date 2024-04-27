@@ -35,122 +35,122 @@ func TimeV() TimeValidator {
 	}
 }
 
-func (sv TimeValidator) Required(condition bool) TimeValidator {
-	if !sv.skip {
-		sv.rules = append(sv.rules, RequiredTime(condition))
+func (tv TimeValidator) Required(condition bool) TimeValidator {
+	if !tv.skip {
+		tv.rules = append(tv.rules, RequiredTime(condition))
 	}
-	return sv
+	return tv
 }
 
-func (sv TimeValidator) Skip(condition bool) TimeValidator {
-	if !sv.skip && condition {
-		sv.skip = true
+func (tv TimeValidator) Skip(condition bool) TimeValidator {
+	if !tv.skip && condition {
+		tv.skip = true
 	}
-	return sv
+	return tv
 }
 
-func (sv TimeValidator) In(elements ...time.Time) TimeValidator {
-	if !sv.skip {
-		sv.rules = append(sv.rules, InTime(elements...))
+func (tv TimeValidator) In(elements ...time.Time) TimeValidator {
+	if !tv.skip {
+		tv.rules = append(tv.rules, InTime(elements...))
 	}
-	return sv
+	return tv
 }
 
-func (sv TimeValidator) NotIn(elements ...time.Time) TimeValidator {
-	if !sv.skip {
-		sv.rules = append(sv.rules, NotInTime(elements...))
+func (tv TimeValidator) NotIn(elements ...time.Time) TimeValidator {
+	if !tv.skip {
+		tv.rules = append(tv.rules, NotInTime(elements...))
 	}
-	return sv
+	return tv
 }
 
-func (sv TimeValidator) Equal(v time.Time) TimeValidator {
-	if !sv.skip {
-		sv.rules = append(sv.rules, EqualTime(v))
+func (tv TimeValidator) Equal(v time.Time) TimeValidator {
+	if !tv.skip {
+		tv.rules = append(tv.rules, EqualTime(v))
 	}
-	return sv
+	return tv
 }
 
-func (sv TimeValidator) Less(v time.Time) TimeValidator {
-	if !sv.skip {
-		sv.rules = append(sv.rules, LessTime(v))
+func (tv TimeValidator) Less(v time.Time) TimeValidator {
+	if !tv.skip {
+		tv.rules = append(tv.rules, LessTime(v))
 	}
-	return sv
+	return tv
 }
 
-func (sv TimeValidator) LessEqual(v time.Time) TimeValidator {
-	if !sv.skip {
-		sv.rules = append(sv.rules, LessEqualTime(v))
+func (tv TimeValidator) LessEqual(v time.Time) TimeValidator {
+	if !tv.skip {
+		tv.rules = append(tv.rules, LessEqualTime(v))
 	}
-	return sv
+	return tv
 }
 
-func (sv TimeValidator) Greater(v time.Time) TimeValidator {
-	if !sv.skip {
-		sv.rules = append(sv.rules, GreaterTime(v))
+func (tv TimeValidator) Greater(v time.Time) TimeValidator {
+	if !tv.skip {
+		tv.rules = append(tv.rules, GreaterTime(v))
 	}
-	return sv
+	return tv
 }
 
-func (sv TimeValidator) GreaterEqual(v time.Time) TimeValidator {
-	if !sv.skip {
-		sv.rules = append(sv.rules, GreaterEqualTime(v))
+func (tv TimeValidator) GreaterEqual(v time.Time) TimeValidator {
+	if !tv.skip {
+		tv.rules = append(tv.rules, GreaterEqualTime(v))
 	}
-	return sv
+	return tv
 }
 
-func (sv TimeValidator) Between(a, b time.Time) TimeValidator {
-	if !sv.skip {
-		sv.rules = append(sv.rules, BetweenTime(a, b))
+func (tv TimeValidator) Between(a, b time.Time) TimeValidator {
+	if !tv.skip {
+		tv.rules = append(tv.rules, BetweenTime(a, b))
 	}
-	return sv
+	return tv
 }
 
-func (sv TimeValidator) BetweenEqual(a, b time.Time) TimeValidator {
-	if !sv.skip {
-		sv.rules = append(sv.rules, BetweenEqualTime(a, b))
+func (tv TimeValidator) BetweenEqual(a, b time.Time) TimeValidator {
+	if !tv.skip {
+		tv.rules = append(tv.rules, BetweenEqualTime(a, b))
 	}
-	return sv
+	return tv
 }
 
-func (sv TimeValidator) When(condition bool, ok, otherwise TimeRule) TimeValidator {
-	if !sv.skip {
+func (tv TimeValidator) When(condition bool, ok, otherwise TimeRule) TimeValidator {
+	if !tv.skip {
 		if condition {
-			sv.rules = append(sv.rules, ok)
+			tv.rules = append(tv.rules, ok)
 		} else if otherwise != nil {
-			sv.rules = append(sv.rules, otherwise)
+			tv.rules = append(tv.rules, otherwise)
 		}
 	}
-	return sv
+	return tv
 }
 
-func (sv TimeValidator) With(fns ...func(v time.Time) error) TimeValidator {
-	if !sv.skip {
-		slices.Grow(sv.rules, len(fns))
+func (tv TimeValidator) With(fns ...func(v time.Time) error) TimeValidator {
+	if !tv.skip {
+		slices.Grow(tv.rules, len(fns))
 		for _, fn := range fns {
-			sv.rules = append(sv.rules, TimeRuleFunc(fn))
+			tv.rules = append(tv.rules, TimeRuleFunc(fn))
 		}
 	}
-	return sv
+	return tv
 }
 
-func (sv TimeValidator) By(rules ...TimeRule) TimeValidator {
-	if !sv.skip {
-		sv.rules = append(sv.rules, rules...)
+func (tv TimeValidator) By(rules ...TimeRule) TimeValidator {
+	if !tv.skip {
+		tv.rules = append(tv.rules, rules...)
 	}
-	return sv
+	return tv
 }
 
-func (sv TimeValidator) Valid() error {
-	for _, rule := range sv.rules {
-		if err := rule.Validate(sv.data.value); err != nil {
-			return NewValueError(sv.data.name, err)
+func (tv TimeValidator) Valid() error {
+	for _, rule := range tv.rules {
+		if err := rule.Validate(tv.data.value); err != nil {
+			return NewValueError(tv.data.name, err)
 		}
 	}
 	return nil
 }
 
-func (sv TimeValidator) Validate(v time.Time) error {
-	for _, rule := range sv.rules {
+func (tv TimeValidator) Validate(v time.Time) error {
+	for _, rule := range tv.rules {
 		if err := rule.Validate(v); err != nil {
 			return err
 		}
