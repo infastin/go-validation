@@ -379,15 +379,15 @@ func Path[T ~string](v T) error {
 }
 
 func File[T ~string](v T) error {
-	if stat, err := os.Stat(string(v)); err != nil && !stat.Mode().IsRegular() {
+	if stat, err := os.Stat(string(v)); err != nil || !stat.Mode().IsRegular() {
 		return ErrFile
 	}
 	return nil
 }
 
 func Directory[T ~string](v T) error {
-	if stat, err := os.Stat(string(v)); err != nil && !stat.Mode().IsDir() {
-		return ErrFile
+	if stat, err := os.Stat(string(v)); err != nil || !stat.Mode().IsDir() {
+		return ErrDirectory
 	}
 	return nil
 }
