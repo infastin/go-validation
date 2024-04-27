@@ -24,6 +24,17 @@ func Comparable[T comparable](v T, name string) ComparableValidator[T] {
 	}
 }
 
+func ComparableI[T comparable](v T) ComparableValidator[T] {
+	return ComparableValidator[T]{
+		data: &comparableValidatorData[T]{
+			value: v,
+			name:  "",
+		},
+		rules: make([]ComparableRule[T], 0),
+		scope: nil,
+	}
+}
+
 func ComparableV[T comparable]() ComparableValidator[T] {
 	return ComparableValidator[T]{
 		data:  nil,
@@ -115,7 +126,10 @@ func (cv ComparableValidator[T]) By(rules ...ComparableRule[T]) ComparableValida
 func (cv ComparableValidator[T]) Valid() error {
 	for _, rule := range cv.rules {
 		if err := rule.Validate(cv.data.value); err != nil {
-			return NewValueError(cv.data.name, err)
+			if cv.data.name != "" {
+				err = NewValueError(cv.data.name, err)
+			}
+			return err
 		}
 	}
 	return nil

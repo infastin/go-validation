@@ -28,6 +28,17 @@ func Number[T constraints.Number](n T, name string) NumberValidator[T] {
 	}
 }
 
+func NumberI[T constraints.Number](n T) NumberValidator[T] {
+	return NumberValidator[T]{
+		data: &numberValidatorData[T]{
+			value: n,
+			name:  "",
+		},
+		rules: make([]NumberRule[T], 0),
+		scope: nil,
+	}
+}
+
 func NumberV[T constraints.Number]() NumberValidator[T] {
 	return NumberValidator[T]{
 		data:  nil,
@@ -161,7 +172,10 @@ func (nv NumberValidator[T]) By(rules ...NumberRule[T]) NumberValidator[T] {
 func (nv NumberValidator[T]) Valid() error {
 	for _, rule := range nv.rules {
 		if err := rule.Validate(nv.data.value); err != nil {
-			return NewValueError(nv.data.name, err)
+			if nv.data.name != "" {
+				err = NewValueError(nv.data.name, err)
+			}
+			return err
 		}
 	}
 	return nil

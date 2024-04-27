@@ -24,6 +24,17 @@ func String[T ~string](s T, name string) StringValidator[T] {
 	}
 }
 
+func StringI[T ~string](s T) StringValidator[T] {
+	return StringValidator[T]{
+		data: &stringValidatorData[T]{
+			value: s,
+			name:  "",
+		},
+		rules: make([]StringRule[T], 0),
+		scope: nil,
+	}
+}
+
 func StringV[T ~string]() StringValidator[T] {
 	return StringValidator[T]{
 		data:  nil,
@@ -164,7 +175,10 @@ func (sv StringValidator[T]) By(rules ...StringRule[T]) StringValidator[T] {
 func (sv StringValidator[T]) Valid() error {
 	for _, rule := range sv.rules {
 		if err := rule.Validate(sv.data.value); err != nil {
-			return NewValueError(sv.data.name, err)
+			if sv.data.name != "" {
+				err = NewValueError(sv.data.name, err)
+			}
+			return err
 		}
 	}
 	return nil

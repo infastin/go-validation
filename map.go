@@ -24,6 +24,17 @@ func Map[T any](m map[string]T, name string) MapValidator[T] {
 	}
 }
 
+func MapI[T any](m map[string]T) MapValidator[T] {
+	return MapValidator[T]{
+		data: &mapValidatorData[T]{
+			value: m,
+			name:  "",
+		},
+		rules: make([]MapRule[T], 0),
+		scope: nil,
+	}
+}
+
 func MapV[T any]() MapValidator[T] {
 	return MapValidator[T]{
 		data:  nil,
@@ -129,7 +140,10 @@ func (mv MapValidator[T]) By(rules ...MapRule[T]) MapValidator[T] {
 func (mv MapValidator[T]) Valid() error {
 	for _, rule := range mv.rules {
 		if err := rule.Validate(mv.data.value); err != nil {
-			return NewValueError(mv.data.name, err)
+			if mv.data.name != "" {
+				err = NewValueError(mv.data.name, err)
+			}
+			return err
 		}
 	}
 	return nil

@@ -24,6 +24,17 @@ func Any[T any](v T, name string) AnyValidator[T] {
 	}
 }
 
+func AnyI[T any](v T) AnyValidator[T] {
+	return AnyValidator[T]{
+		data: &anyValidatorData[T]{
+			value: v,
+			name:  "",
+		},
+		rules: make([]AnyRule[T], 0),
+		scope: nil,
+	}
+}
+
 func AnyV[T any]() AnyValidator[T] {
 	return AnyValidator[T]{
 		data:  nil,
@@ -157,7 +168,10 @@ func (av AnyValidator[T]) By(rules ...AnyRule[T]) AnyValidator[T] {
 func (av AnyValidator[T]) Valid() error {
 	for _, rule := range av.rules {
 		if err := rule.Validate(av.data.value); err != nil {
-			return NewValueError(av.data.name, err)
+			if av.data.name != "" {
+				err = NewValueError(av.data.name, err)
+			}
+			return err
 		}
 	}
 	return nil

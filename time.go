@@ -27,6 +27,17 @@ func Time(v time.Time, name string) TimeValidator {
 	}
 }
 
+func TimeI(v time.Time) TimeValidator {
+	return TimeValidator{
+		data: &timeValidatorData{
+			value: v,
+			name:  "",
+		},
+		rules: make([]TimeRule, 0),
+		scope: nil,
+	}
+}
+
 func TimeV() TimeValidator {
 	return TimeValidator{
 		data:  nil,
@@ -160,7 +171,10 @@ func (tv TimeValidator) By(rules ...TimeRule) TimeValidator {
 func (tv TimeValidator) Valid() error {
 	for _, rule := range tv.rules {
 		if err := rule.Validate(tv.data.value); err != nil {
-			return NewValueError(tv.data.name, err)
+			if tv.data.name != "" {
+				err = NewValueError(tv.data.name, err)
+			}
+			return err
 		}
 	}
 	return nil

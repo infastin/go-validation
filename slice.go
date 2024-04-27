@@ -24,6 +24,17 @@ func Slice[T any](s []T, name string) SliceValidator[T] {
 	}
 }
 
+func SliceI[T any](s []T) SliceValidator[T] {
+	return SliceValidator[T]{
+		data: &sliceValidatorData[T]{
+			value: s,
+			name:  "",
+		},
+		rules: make([]SliceRule[T], 0),
+		scope: nil,
+	}
+}
+
 func SliceV[T any]() SliceValidator[T] {
 	return SliceValidator[T]{
 		data:  nil,
@@ -126,12 +137,12 @@ func (sv SliceValidator[T]) By(rules ...SliceRule[T]) SliceValidator[T] {
 	return sv
 }
 
-func (sv SliceValidator[T]) ValuesBy(rules ...AnyRule[T]) SliceValidator[T] {
+func (sv SliceValidator[T]) ValuesWith(fns ...func(v T) error) SliceValidator[T] {
 	if sv.scope.Ok() {
 		sv.rules = append(sv.rules, SliceRuleFunc[T](func(s []T) error {
 			for i := range s {
-				for _, rule := range rules {
-					if err := rule.Validate(s[i]); err != nil {
+				for _, fn := range fns {
+					if err := fn(s[i]); err != nil {
 						return NewIndexError(i, err)
 					}
 				}
@@ -142,12 +153,12 @@ func (sv SliceValidator[T]) ValuesBy(rules ...AnyRule[T]) SliceValidator[T] {
 	return sv
 }
 
-func (sv SliceValidator[T]) ValuesWith(fns ...func(v T) error) SliceValidator[T] {
+func (sv SliceValidator[T]) ValuesBy(rules ...AnyRule[T]) SliceValidator[T] {
 	if sv.scope.Ok() {
 		sv.rules = append(sv.rules, SliceRuleFunc[T](func(s []T) error {
 			for i := range s {
-				for _, fn := range fns {
-					if err := fn(s[i]); err != nil {
+				for _, rule := range rules {
+					if err := rule.Validate(s[i]); err != nil {
 						return NewIndexError(i, err)
 					}
 				}
@@ -193,7 +204,10 @@ func (sv SliceValidator[T]) ValuesPtrWith(fns ...func(v *T) error) SliceValidato
 func (sv SliceValidator[T]) Valid() error {
 	for _, rule := range sv.rules {
 		if err := rule.Validate(sv.data.value); err != nil {
-			return NewValueError(sv.data.name, err)
+			if sv.data.name != "" {
+				err = NewValueError(sv.data.name, err)
+			}
+			return err
 		}
 	}
 	return nil
