@@ -55,8 +55,8 @@ var (
 	ErrLanguageCode2L = validation.NewRuleError("is_two_letter_language_code", "must be a valid two-letter language code")
 	ErrLanguageCode3L = validation.NewRuleError("is_three_letter_language_code", "must be a valid three-letter language code")
 	ErrPath           = validation.NewRuleError("is_path", "must be a valid path")
-	ErrFile           = validation.NewRuleError("is_path", "must be a valid path to a file")
-	ErrDirectory      = validation.NewRuleError("is_path", "must be a valid path to a directory")
+	ErrFile           = validation.NewRuleError("is_file", "must be a valid path to a file")
+	ErrDirectory      = validation.NewRuleError("is_directory", "must be a valid path to a directory")
 )
 
 var (
