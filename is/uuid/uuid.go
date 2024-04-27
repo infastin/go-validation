@@ -10,6 +10,7 @@ var (
 	ErrUUIDv3 = validation.NewRuleError("is_uuid_v3", "must be a valid UUID v3")
 	ErrUUIDv4 = validation.NewRuleError("is_uuid_v4", "must be a valid UUID v4")
 	ErrUUIDv5 = validation.NewRuleError("is_uuid_v5", "must be a valid UUID v5")
+	ErrUUIDv7 = validation.NewRuleError("is_uuid_v7", "must be a valid UUID v7")
 )
 
 func V1[T constraints.UUID](v T) error {
@@ -36,6 +37,13 @@ func V4[T constraints.UUID](v T) error {
 func V5[T constraints.UUID](v T) error {
 	if v[6]>>4 != 5 {
 		return ErrUUIDv5
+	}
+	return nil
+}
+
+func V7[T constraints.UUID](v T) error {
+	if v[6]>>4 != 7 {
+		return ErrUUIDv7
 	}
 	return nil
 }
