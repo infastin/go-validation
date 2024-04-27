@@ -23,10 +23,32 @@ func Equal[T comparable](v T) compareRule[T] {
 	}
 }
 
+func EqualAny[T any](eq func(a, b T) bool, v T) compareRule[T] {
+	return compareRule[T]{
+		comp: func(x T) bool {
+			return eq(x, v)
+		},
+		buildError: func() error {
+			return buildEqualError(v)
+		},
+	}
+}
+
 func Less[T constraints.Ordered](v T) compareRule[T] {
 	return compareRule[T]{
 		comp: func(x T) bool {
 			return x < v
+		},
+		buildError: func() error {
+			return buildLessError(v)
+		},
+	}
+}
+
+func LessAny[T any](cmp func(a, b T) int, v T) compareRule[T] {
+	return compareRule[T]{
+		comp: func(x T) bool {
+			return cmp(x, v) < 0
 		},
 		buildError: func() error {
 			return buildLessError(v)
@@ -45,6 +67,17 @@ func LessEqual[T constraints.Ordered](v T) compareRule[T] {
 	}
 }
 
+func LessEqualAny[T any](cmp func(a, b T) int, v T) compareRule[T] {
+	return compareRule[T]{
+		comp: func(x T) bool {
+			return cmp(x, v) <= 0
+		},
+		buildError: func() error {
+			return buildLessEqualError(v)
+		},
+	}
+}
+
 func Greater[T constraints.Ordered](v T) compareRule[T] {
 	return compareRule[T]{
 		comp: func(x T) bool {
@@ -56,10 +89,32 @@ func Greater[T constraints.Ordered](v T) compareRule[T] {
 	}
 }
 
+func GreaterAny[T any](cmp func(a, b T) int, v T) compareRule[T] {
+	return compareRule[T]{
+		comp: func(x T) bool {
+			return cmp(x, v) > 0
+		},
+		buildError: func() error {
+			return buildGreaterError(v)
+		},
+	}
+}
+
 func GreaterEqual[T constraints.Ordered](v T) compareRule[T] {
 	return compareRule[T]{
 		comp: func(x T) bool {
-			return x > v
+			return x >= v
+		},
+		buildError: func() error {
+			return buildGreaterEqualError(v)
+		},
+	}
+}
+
+func GreaterEqualAny[T any](cmp func(a, b T) int, v T) compareRule[T] {
+	return compareRule[T]{
+		comp: func(x T) bool {
+			return cmp(x, v) >= 0
 		},
 		buildError: func() error {
 			return buildGreaterEqualError(v)
@@ -78,10 +133,32 @@ func Between[T constraints.Ordered](a, b T) compareRule[T] {
 	}
 }
 
+func BetweenAny[T any](cmp func(a, b T) int, a, b T) compareRule[T] {
+	return compareRule[T]{
+		comp: func(x T) bool {
+			return cmp(x, a) > 0 && cmp(x, b) < 0
+		},
+		buildError: func() error {
+			return buildBetweenError(a, b)
+		},
+	}
+}
+
 func BetweenEqual[T constraints.Ordered](a, b T) compareRule[T] {
 	return compareRule[T]{
 		comp: func(x T) bool {
 			return x >= a && x <= b
+		},
+		buildError: func() error {
+			return buildBetweenEqualError(a, b)
+		},
+	}
+}
+
+func BetweenEqualAny[T any](cmp func(a, b T) int, a, b T) compareRule[T] {
+	return compareRule[T]{
+		comp: func(x T) bool {
+			return cmp(x, a) >= 0 && cmp(x, b) <= 0
 		},
 		buildError: func() error {
 			return buildBetweenEqualError(a, b)

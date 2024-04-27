@@ -14,7 +14,7 @@ type numberValidatorData[T constraints.Number] struct {
 type NumberValidator[T constraints.Number] struct {
 	data  *numberValidatorData[T]
 	rules []NumberRule[T]
-	skip  bool
+	scope validatorScope
 }
 
 func Number[T constraints.Number](n T, name string) NumberValidator[T] {
@@ -24,7 +24,7 @@ func Number[T constraints.Number](n T, name string) NumberValidator[T] {
 			name:  name,
 		},
 		rules: make([]NumberRule[T], 0),
-		skip:  false,
+		scope: nil,
 	}
 }
 
@@ -32,100 +32,117 @@ func NumberV[T constraints.Number]() NumberValidator[T] {
 	return NumberValidator[T]{
 		data:  nil,
 		rules: make([]NumberRule[T], 0),
-		skip:  false,
+		scope: nil,
 	}
 }
 
+func (nv NumberValidator[T]) If(condition bool) NumberValidator[T] {
+	if nv.scope.Ok() {
+		nv.scope = nv.scope.Push(condition)
+	}
+	return nv
+}
+
+func (nv NumberValidator[T]) ElseIf(condition bool) NumberValidator[T] {
+	if !nv.scope.Ok() {
+		nv.scope.Set(condition)
+	}
+	return nv
+}
+
+func (nv NumberValidator[T]) Else() NumberValidator[T] {
+	if !nv.scope.Ok() {
+		nv.scope.Set(true)
+	}
+	return nv
+}
+
+func (nv NumberValidator[T]) Break(condition bool) NumberValidator[T] {
+	if !nv.scope.Empty() && condition {
+		nv.scope.Set(false)
+	}
+	return nv
+}
+
+func (nv NumberValidator[T]) EndIf() NumberValidator[T] {
+	if !nv.scope.Empty() {
+		nv.scope = nv.scope.Pop()
+	}
+	return nv
+}
+
 func (nv NumberValidator[T]) Required(condition bool) NumberValidator[T] {
-	if !nv.skip {
+	if nv.scope.Ok() {
 		nv.rules = append(nv.rules, Required[T](condition))
 	}
 	return nv
 }
 
-func (nv NumberValidator[T]) Skip(condition bool) NumberValidator[T] {
-	if !nv.skip && condition {
-		nv.skip = true
-	}
-	return nv
-}
-
 func (nv NumberValidator[T]) In(elements ...T) NumberValidator[T] {
-	if !nv.skip {
+	if nv.scope.Ok() {
 		nv.rules = append(nv.rules, In(elements...))
 	}
 	return nv
 }
 
 func (nv NumberValidator[T]) NotIn(elements ...T) NumberValidator[T] {
-	if !nv.skip {
+	if nv.scope.Ok() {
 		nv.rules = append(nv.rules, NotIn(elements...))
 	}
 	return nv
 }
 
 func (nv NumberValidator[T]) Equal(v T) NumberValidator[T] {
-	if !nv.skip {
+	if nv.scope.Ok() {
 		nv.rules = append(nv.rules, Equal(v))
 	}
 	return nv
 }
 
 func (nv NumberValidator[T]) Less(v T) NumberValidator[T] {
-	if !nv.skip {
+	if nv.scope.Ok() {
 		nv.rules = append(nv.rules, Less(v))
 	}
 	return nv
 }
 
 func (nv NumberValidator[T]) LessEqual(v T) NumberValidator[T] {
-	if !nv.skip {
+	if nv.scope.Ok() {
 		nv.rules = append(nv.rules, LessEqual(v))
 	}
 	return nv
 }
 
 func (nv NumberValidator[T]) Greater(v T) NumberValidator[T] {
-	if !nv.skip {
+	if nv.scope.Ok() {
 		nv.rules = append(nv.rules, Greater(v))
 	}
 	return nv
 }
 
 func (nv NumberValidator[T]) GreaterEqual(v T) NumberValidator[T] {
-	if !nv.skip {
+	if nv.scope.Ok() {
 		nv.rules = append(nv.rules, GreaterEqual(v))
 	}
 	return nv
 }
 
 func (nv NumberValidator[T]) Between(a, b T) NumberValidator[T] {
-	if !nv.skip {
+	if nv.scope.Ok() {
 		nv.rules = append(nv.rules, Between(a, b))
 	}
 	return nv
 }
 
 func (nv NumberValidator[T]) BetweenEqual(a, b T) NumberValidator[T] {
-	if !nv.skip {
+	if nv.scope.Ok() {
 		nv.rules = append(nv.rules, BetweenEqual(a, b))
 	}
 	return nv
 }
 
-func (nv NumberValidator[T]) When(condition bool, ok, otherwise NumberRule[T]) NumberValidator[T] {
-	if !nv.skip {
-		if condition {
-			nv.rules = append(nv.rules, ok)
-		} else if otherwise != nil {
-			nv.rules = append(nv.rules, otherwise)
-		}
-	}
-	return nv
-}
-
 func (nv NumberValidator[T]) With(fns ...func(n T) error) NumberValidator[T] {
-	if !nv.skip {
+	if nv.scope.Ok() {
 		slices.Grow(nv.rules, len(fns))
 		for _, fn := range fns {
 			nv.rules = append(nv.rules, NumberRuleFunc[T](fn))
@@ -135,7 +152,7 @@ func (nv NumberValidator[T]) With(fns ...func(n T) error) NumberValidator[T] {
 }
 
 func (nv NumberValidator[T]) By(rules ...NumberRule[T]) NumberValidator[T] {
-	if !nv.skip {
+	if nv.scope.Ok() {
 		nv.rules = append(nv.rules, rules...)
 	}
 	return nv

@@ -1,6 +1,7 @@
 package isstr
 
 import (
+	"os"
 	"regexp"
 
 	"github.com/asaskevich/govalidator"
@@ -53,6 +54,9 @@ var (
 	ErrCountryCode3L  = validation.NewRuleError("is_three_letter_country_code", "must be a valid three-letter country code")
 	ErrLanguageCode2L = validation.NewRuleError("is_two_letter_language_code", "must be a valid two-letter language code")
 	ErrLanguageCode3L = validation.NewRuleError("is_three_letter_language_code", "must be a valid three-letter language code")
+	ErrPath           = validation.NewRuleError("is_path", "must be a valid path")
+	ErrFile           = validation.NewRuleError("is_path", "must be a valid path to a file")
+	ErrDirectory      = validation.NewRuleError("is_path", "must be a valid path to a directory")
 )
 
 var (
@@ -124,6 +128,13 @@ func UpperCase[T ~string](v T) error {
 
 func Email[T ~string](v T) error {
 	if !govalidator.IsEmail(string(v)) {
+		return ErrEmail
+	}
+	return nil
+}
+
+func ExistingEmail[T ~string](v T) error {
+	if !govalidator.IsExistingEmail(string(v)) {
 		return ErrEmail
 	}
 	return nil
@@ -356,6 +367,27 @@ func LanguageCode2L[T ~string](v T) error {
 func LanguageCode3L[T ~string](v T) error {
 	if !govalidator.IsISO693Alpha3b(string(v)) {
 		return ErrLanguageCode3L
+	}
+	return nil
+}
+
+func Path[T ~string](v T) error {
+	if _, err := os.Stat(string(v)); err != nil {
+		return ErrPath
+	}
+	return nil
+}
+
+func File[T ~string](v T) error {
+	if stat, err := os.Stat(string(v)); err != nil && !stat.Mode().IsRegular() {
+		return ErrFile
+	}
+	return nil
+}
+
+func Directory[T ~string](v T) error {
+	if stat, err := os.Stat(string(v)); err != nil && !stat.Mode().IsDir() {
+		return ErrFile
 	}
 	return nil
 }

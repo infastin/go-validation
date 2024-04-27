@@ -135,19 +135,19 @@ func errorWriteString(err error, b *strings.Builder) {
 }
 
 func (es Errors) writeString(b *strings.Builder) {
-	for i, err := range es {
-		ve, ok := err.(ValueError)
-		if !ok {
-			continue
+	sz := b.Len()
+	for _, err := range es {
+		switch e := err.(type) {
+		case Errors:
+			e.writeString(b)
+		case ValueError:
+			if sz != b.Len() {
+				b.WriteString("; ")
+			}
+			b.WriteString(e.Name())
+			b.WriteString(": ")
+			errorWriteString(e.Unwrap(), b)
 		}
-
-		if i != 0 {
-			b.WriteString("; ")
-		}
-
-		b.WriteString(ve.Name())
-		b.WriteString(": ")
-		errorWriteString(ve.Unwrap(), b)
 	}
 }
 
@@ -155,17 +155,17 @@ func (es Errors) Error() string {
 	if len(es) == 0 {
 		return ""
 	}
-
 	var b strings.Builder
 	es.writeString(&b)
-
 	return b.String()
 }
 
 func errorMarshalJSON(err error, b []byte) []byte {
 	switch e := err.(type) {
 	case Errors:
+		b = append(b, '{')
 		b = e.marshalJSON(b)
+		b = append(b, '}')
 	case IndexError:
 		b = append(b, '{', '"')
 		b = strconv.AppendInt(b, int64(e.Index()), 10)
@@ -179,28 +179,27 @@ func errorMarshalJSON(err error, b []byte) []byte {
 }
 
 func (es Errors) marshalJSON(b []byte) []byte {
-	b = append(b, '{')
-
-	for i, err := range es {
-		ve, ok := err.(ValueError)
-		if !ok {
-			continue
+	sz := len(b)
+	for _, err := range es {
+		switch e := err.(type) {
+		case Errors:
+			b = e.marshalJSON(b)
+		case ValueError:
+			if sz != len(b) {
+				b = append(b, ',')
+			}
+			b = strconv.AppendQuote(b, e.Name())
+			b = append(b, ':')
+			b = errorMarshalJSON(e.Unwrap(), b)
 		}
-
-		if i != 0 {
-			b = append(b, ',')
-		}
-
-		b = strconv.AppendQuote(b, ve.Name())
-		b = append(b, ':')
-		b = errorMarshalJSON(ve.Unwrap(), b)
 	}
-
-	b = append(b, '}')
-
 	return b
 }
 
 func (es Errors) MarshalJSON() ([]byte, error) {
-	return es.marshalJSON(nil), nil
+	var b []byte
+	b = append(b, '{')
+	b = es.marshalJSON(b)
+	b = append(b, '}')
+	return b, nil
 }
