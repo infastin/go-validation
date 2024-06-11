@@ -30,6 +30,7 @@ var (
 	ErrIP             = validation.NewRuleError("is_ip", "must be a valid IP address")
 	ErrIPv4           = validation.NewRuleError("is_ipv4", "must be a valid IPv4 address")
 	ErrIPv6           = validation.NewRuleError("is_ipv6", "must be a valid IPv6 address")
+	ErrCIDR           = validation.NewRuleError("is_cidr", "must be a valid CIDR")
 	ErrSubdomain      = validation.NewRuleError("is_sub_domain", "must be a valid subdomain")
 	ErrDomain         = validation.NewRuleError("is_domain", "must be a valid domain")
 	ErrDNSName        = validation.NewRuleError("is_dns_name", "must be a valid DNS name")
@@ -199,6 +200,13 @@ func JSON[T ~string](v T) error {
 func IP[T ~string](v T) error {
 	if !govalidator.IsIP(string(v)) {
 		return ErrIP
+	}
+	return nil
+}
+
+func CIDR[T ~string](v T) error {
+	if !govalidator.IsCIDR(string(v)) {
+		return ErrCIDR
 	}
 	return nil
 }
